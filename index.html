@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sadhana // High-Fidelity Devotional Ecosystem</title>
+    <meta name="description" content="Premium devotional application. Real-time astrological coordinates, verified scriptural texts, and serene audio streaming.">
+    <meta name="theme-color" content="#0D0D0D">
+    <link rel="manifest" href="manifest.json">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = { theme: { extend: { colors: { deepBlack: '#0D0D0D', cardGray: '#161615', gold: '#E6C25A', goldDark: '#A68632' }, fontFamily: { cinzel: ['Cinzel', 'serif'], inter: ['Inter', 'sans-serif'] } } } }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0D0D0D; color: #EFEFEF; -webkit-tap-highlight-color: transparent; }
+        .font-title { font-family: 'Cinzel', serif; }
+        ::-webkit-scrollbar { width: 3px; }
+        ::-webkit-scrollbar-thumb { background: #E6C25A; }
+        .accent-mark { color: #E6C25A; font-weight: bold; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out, opacity 0.2s ease-out; opacity: 0; }
+        .accordion-content.open { max-height: 1200px; opacity: 1; transition: max-height 0.3s ease-in, opacity 0.3s ease-in; }
+    </style>
+</head>
+<body class="flex justify-center items-center min-h-screen p-0 sm:p-4 select-none">
+    <div class="w-full max-w-md h-[100dvh] sm:h-[860px] bg-cardGray border-0 sm:border border-gold/20 rounded-none sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col relative">
+        
+        <header class="bg-deepBlack/95 border-b border-gold/10 px-5 py-4 flex justify-between items-center z-20 sticky top-0 backdrop-blur-md">
+            <div>
+                <p class="text-[10px] tracking-[0.2em] text-gold/60 font-semibold uppercase">arthaNexus // Global</p>
+                <h1 class="text-2xl font-title font-bold text-gold tracking-wide">SADHANA</h1>
+            </div>
+            <div class="text-right">
+                <span id="live-timer" class="font-mono text-[10px] bg-deepBlack border border-gold/10 text-gold px-2 py-1 rounded">00:00:00</span>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto p-4 space-y-4 pb-24">
+            <!-- PANCHANG -->
+            <div id="module-panchang" class="tab-content active space-y-4">
+                <section class="bg-gradient-to-r from-deepBlack to-cardGray border border-gold/15 rounded-2xl p-4 flex justify-between items-center shadow-lg">
+                    <div class="space-y-1">
+                        <span class="text-[9px] tracking-widest text-emerald-400 font-bold uppercase"><i class="fa-solid fa-location-dot text-[7px] mr-1"></i> Auto-Location</span>
+                        <h2 id="live-location-badge" class="text-sm font-semibold text-white">Detecting Coordinates...</h2>
+                    </div>
+                    <button onclick="fetchGeographicParameters()" class="text-gold text-lg p-2"><i class="fa-solid fa-location-crosshairs"></i></button>
+                </section>
+                <section class="bg-deepBlack border border-gold/10 rounded-xl p-3 flex justify-between items-center text-xs">
+                    <div class="flex items-center space-x-2"><i class="fa-solid fa-earth-asia text-gold"></i><span class="text-gray-400">System:</span><span id="system-mode-badge" class="font-bold text-white">Chandramanam</span></div>
+                    <button onclick="toggleCalendarSystem()" class="text-[10px] bg-gold/10 border border-gold/20 text-gold px-2.5 py-1 rounded">Toggle Basis</button>
+                </section>
+                <section class="bg-deepBlack border border-gold/15 rounded-xl overflow-hidden">
+                    <button onclick="toggleAccordion('sankalpam-body', 'sankalpam-arrow')" class="w-full p-4 flex justify-between items-center border-b border-gold/10 bg-deepBlack">
+                        <div class="flex items-center space-x-2"><i class="fa-solid fa-scroll text-gold text-xs"></i><h2 class="text-xs font-bold uppercase tracking-wider text-gray-300">Sankalpam</h2></div>
+                        <i id="sankalpam-arrow" class="fa-solid fa-chevron-down text-gold text-xs transition-transform duration-200"></i>
+                    </button>
+                    <div id="sankalpam-body" class="accordion-content bg-cardGray/20">
+                        <div class="p-4 text-xs leading-relaxed text-gray-300 space-y-2 font-serif">
+                            <p>dviteeya parardhe, swetha varaha kalpe, vaivasvatha manvanthare, kali yuge, pradhama paade, jamboodveepe, bharatha varshe, bharathakande, asmin merohu dakshina dhik bhaage, <span id="sankalpam-geo-text" class="text-emerald-400 font-semibold font-sans">srisailasya vayuvya pradese, ganga godavari yo madhya pradese</span>, samstha devatha brahmana harihara sannidhav, asmin varthamaana vyavahaarika, <span id="sankalpam-calendar-text" class="text-gold font-sans font-bold">chaadramaanena</span>,</p>
+                            <p class="border-t border-gold/5 pt-2">sri parabhava nama samvasthsare, vutharaayine, greeshma ruthav, adhika jyeshta maase, sukhla pakshe, <span id="sankalpam-tithi" class="text-white font-medium font-sans">vidiya yam</span>, nakshathare, subha yoge, subha karane.</p>
+                        </div>
+                    </div>
+                </section>
+                <section class="bg-deepBlack border border-gold/15 rounded-xl overflow-hidden">
+                    <button onclick="toggleAccordion('tithi-body', 'tithi-arrow')" class="w-full p-4 flex justify-between items-center border-b border-gold/10 bg-deepBlack">
+                        <div class="flex items-center space-x-2"><i class="fa-solid fa-hourglass-half text-gold text-xs"></i><h2 class="text-xs font-bold uppercase tracking-wider text-gray-300">Tithi & Timings</h2></div>
+                        <i id="tithi-arrow" class="fa-solid fa-chevron-down text-gold text-xs transition-transform duration-200 rotate-180"></i>
+                    </button>
+                    <div id="tithi-body" class="accordion-content open bg-cardGray/20">
+                        <div class="p-4 space-y-4 text-xs">
+                            <div class="bg-cardGray p-3 border border-gold/5 rounded-lg space-y-2">
+                                <div class="flex justify-between items-center"><span class="text-gray-400 font-medium">Active Position:</span><span id="api-tithi-name" class="text-gold font-bold">Connecting API...</span></div>
+                                <div class="grid grid-cols-2 gap-2 text-[11px] pt-1 border-t border-gray-800">
+                                    <div><p class="text-gray-500">Sunrise:</p><p id="api-sunrise" class="font-mono text-white">--:--</p></div>
+                                    <div><p class="text-gray-500">Sunset:</p><p id="api-sunset" class="font-mono text-emerald-400">--:--</p></div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div class="bg-cardGray p-2.5 rounded border border-red-900/30"><p class="text-red-400 font-medium text-[10px]">Rahu Kalam</p><p id="calc-rahu" class="font-mono text-white text-xs mt-0.5">--:--</p></div>
+                                <div class="bg-cardGray p-2.5 rounded border border-gold/10"><p class="text-gold font-medium text-[10px]">Gulika Kalam</p><p id="calc-gulika" class="font-mono text-white text-xs mt-0.5">--:--</p></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- TEXTS -->
+            <div id="module-texts" class="tab-content space-y-4">
+                <section class="bg-deepBlack border border-gold/10 rounded-xl p-4 space-y-4">
+                    <div class="flex justify-between items-center border-b border-gold/10 pb-2">
+                        <h3 class="font-title text-sm text-gold tracking-wider font-bold">Stotras</h3>
+                        <div class="flex space-x-2">
+                            <button onclick="adjustTextScaling(-1)" class="bg-cardGray border border-gold/10 px-3 py-1 rounded text-xs text-gold font-bold">-</button>
+                            <button onclick="adjustTextScaling(1)" class="bg-cardGray border border-gold/10 px-3 py-1 rounded text-xs text-gold font-bold">+</button>
+                        </div>
+                    </div>
+                    <div class="flex border border-gold/10 rounded-lg overflow-hidden text-xs bg-cardGray">
+                        <button onclick="toggleScriptLanguage('deva')" id="lang-deva" class="flex-1 py-2 font-bold bg-gold text-deepBlack">Devanagari</button>
+                        <button onclick="toggleScriptLanguage('telu')" id="lang-telu" class="flex-1 py-2 text-gray-400">తెలుగు</button>
+                    </div>
+                    <div id="scripture-view-box" class="p-4 bg-cardGray/40 rounded-xl border border-gold/5 text-center leading-loose font-serif text-base space-y-4">
+                        <div id="text-deva" class="space-y-2">
+                            <p class="text-gold font-bold font-title text-sm">॥ श्री सूक्तम् ॥</p>
+                            <p>हिरण्यवर्णामि<span class="accent-mark">॑</span>हां  हरि<span class="accent-mark">॑</span>णीं सुवर्ण<span class="accent-mark">॑</span>रजतस्र<span class="accent-mark">॑</span>जाम् ।</p>
+                        </div>
+                        <div id="text-telu" class="space-y-2 hidden">
+                            <p class="text-gold font-bold font-title text-sm">॥ శ్రీ సూక్తం ॥</p>
+                            <p>హిరణ్యవర్ణామి<span class="accent-mark">॑</span>హాం హరి<span class="accent-mark">॑</span>ణీం సువర్ణ<span class="accent-mark">॑</span>రజతస్ర<span class="accent-mark">॑</span>జామ్ ।</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- JAPA -->
+            <div id="module-japa" class="tab-content space-y-4">
+                <section class="bg-deepBlack border border-gold/10 rounded-xl p-5 text-center space-y-4">
+                    <h3 class="font-title text-xs text-gold tracking-wider uppercase font-bold text-left border-b border-gold/5 pb-2">Japa Counter</h3>
+                    <div class="py-6 bg-cardGray/50 rounded-2xl border border-gold/10 relative overflow-hidden">
+                        <span id="japa-ticker-val" class="text-7xl font-mono font-bold text-gold tracking-tighter">0</span>
+                        <div class="absolute bottom-0 inset-x-0 bg-gray-900 h-1.5"><div id="japa-visual-progress" class="bg-gold h-full w-0 transition-all duration-150"></div></div>
+                    </div>
+                    <button onclick="incrementBeadCycle()" class="w-full bg-gold active:bg-goldDark text-deepBlack font-bold py-6 rounded-2xl transition transform active:scale-95 text-sm uppercase tracking-widest shadow-xl">Tap Bead</button>
+                    <div class="flex justify-between items-center text-xs text-gray-500 px-1 pt-1">
+                        <span>Loops: <span id="mala-loop-counter" class="text-white font-mono font-bold">0</span></span>
+                        <button onclick="resetBeadSystem()" class="text-red-400 hover:underline p-2">Reset</button>
+                    </div>
+                </section>
+            </div>
+
+            <!-- MEDIA -->
+            <div id="module-media" class="tab-content space-y-4">
+                <section class="bg-deepBlack border border-gold/10 rounded-xl p-4 space-y-4">
+                    <h3 class="font-title text-xs text-gold tracking-wider uppercase font-bold border-b border-gold/5 pb-2">Recitation Stream</h3>
+                    <div class="bg-cardGray p-4 rounded-xl border border-gold/10 space-y-3">
+                        <div class="flex items-center space-x-3 text-left">
+                            <div class="w-10 h-10 bg-gold/10 text-gold rounded-lg flex items-center justify-center border border-gold/20"><i class="fa-solid fa-music"></i></div>
+                            <div><h4 class="text-xs font-bold text-white">Rigvedic Hymns</h4><p class="text-[10px] text-gray-400 font-mono">Public Archive Stream</p></div>
+                        </div>
+                        <audio id="native-audio" src="https://archive.org/download/RigvedaChanting/01%20Agni%20Sukta%20Rk%201-9%20Anuvaka%201%20Sukta%201%20Mala%201%20Prathama%20Ashtaka.mp3" preload="none"></audio>
+                        <div class="flex items-center justify-between text-xs pt-1">
+                            <span id="audio-time-elapsed" class="font-mono text-gray-500">00:00</span>
+                            <div class="flex space-x-5 items-center">
+                                <button onclick="document.getElementById('native-audio').currentTime=0" class="text-gray-400 p-2"><i class="fa-solid fa-backward-step text-sm"></i></button>
+                                <button onclick="toggleAudio()" id="audio-btn" class="w-10 h-10 bg-gold text-deepBlack rounded-full flex items-center justify-center font-bold"><i class="fa-solid fa-play ml-0.5 text-sm"></i></button>
+                                <button class="text-gray-400 p-2"><i class="fa-solid fa-forward-step text-sm"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <nav class="absolute bottom-0 inset-x-0 bg-deepBlack/95 border-t border-gold/15 px-2 py-2 flex justify-between items-center z-20 backdrop-blur-md pb-safe">
+            <button onclick="changeViewportTab('panchang')" id="nav-panchang" class="flex-1 flex flex-col items-center space-y-1 text-gold p-2"><i class="fa-solid fa-calendar-day text-sm"></i><span class="text-[9px] font-medium tracking-wide">Panchang</span></button>
+            <button onclick="changeViewportTab('texts')" id="nav-texts" class="flex-1 flex flex-col items-center space-y-1 text-gray-400 p-2"><i class="fa-solid fa-book-open text-sm"></i><span class="text-[9px] font-medium tracking-wide">Stotras</span></button>
+            <button onclick="changeViewportTab('japa')" id="nav-japa" class="flex-1 flex flex-col items-center space-y-1 text-gray-400 p-2"><i class="fa-solid fa-circle-dot text-sm"></i><span class="text-[9px] font-medium tracking-wide">Counter</span></button>
+            <button onclick="changeViewportTab('media')" id="nav-media" class="flex-1 flex flex-col items-center space-y-1 text-gray-400 p-2"><i class="fa-solid fa-play text-sm"></i><span class="text-[9px] font-medium tracking-wide">Media</span></button>
+        </nav>
+    </div>
+
+    <script>
+        let state = { currentMode: 'Chandramanam', textSizePx: 16, beadCount: parseInt(localStorage.getItem('sad_beads'))||0, malaLoops: parseInt(localStorage.getItem('sad_loops'))||0, lat: 17.3850, lon: 78.4867 };
+        setInterval(() => document.getElementById('live-timer').innerText = new Intl.DateTimeFormat([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }).format(new Date()), 1000);
+        function changeViewportTab(tabKey) {
+            ['panchang', 'texts', 'japa', 'media'].forEach(m => {
+                document.getElementById(`module-${m}`).classList.remove('active');
+                document.getElementById(`nav-${m}`).className = "flex-1 flex flex-col items-center space-y-1 text-gray-400 p-2";
+            });
+            document.getElementById(`module-${tabKey}`).classList.add('active');
+            document.getElementById(`nav-${tabKey}`).className = "flex-1 flex flex-col items-center space-y-1 text-gold p-2";
+        }
+        function fetchGeographicParameters() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(async (pos) => {
+                    state.lat = pos.coords.latitude; state.lon = pos.coords.longitude;
+                    try {
+                        let res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${state.lat}&lon=${state.lon}&format=json`);
+                        let data = await res.json();
+                        document.getElementById('live-location-badge').innerText = `${data.address.city || data.address.town || "India"} (${state.lat.toFixed(1)}°, ${state.lon.toFixed(1)}°)`;
+                        fetchSolarData(state.lat, state.lon);
+                    } catch(e) { fallbackGeo(); }
+                }, () => fallbackGeo());
+            } else fallbackGeo();
+        }
+        function fallbackGeo() { fetchSolarData(17.3850, 78.4867); }
+        async function fetchSolarData(lat, lon) {
+            try {
+                let res = await fetch(`https://api.sunrise-sunset.org/json?lat=${lat}&lng=${lon}&formatted=0`);
+                let data = await res.json();
+                if (data.status === "OK") {
+                    let rise = new Date(data.results.sunrise), set = new Date(data.results.sunset);
+                    let fmt = { hour: '2-digit', minute: '2-digit', hour12: true };
+                    document.getElementById('api-sunrise').innerText = rise.toLocaleTimeString([], fmt);
+                    document.getElementById('api-sunset').innerText = set.toLocaleTimeString([], fmt);
+                    let part = (set.getTime() - rise.getTime()) / 15;
+                    document.getElementById('calc-rahu').innerText = `${new Date(rise.getTime() + part * 7.5).toLocaleTimeString([], fmt)} - ${new Date(rise.getTime() + part * 9).toLocaleTimeString([], fmt)}`;
+                    document.getElementById('calc-gulika').innerText = `${new Date(rise.getTime() + part * 6).toLocaleTimeString([], fmt)} - ${new Date(rise.getTime() + part * 7.5).toLocaleTimeString([], fmt)}`;
+                }
+            } catch(e) {}
+        }
+        function toggleCalendarSystem() { state.currentMode = state.currentMode === 'Chandramanam' ? 'Suryamanam' : 'Chandramanam'; document.getElementById('system-mode-badge').innerText = state.currentMode; }
+        function toggleAccordion(b, a) { document.getElementById(b).classList.toggle('open'); document.getElementById(a).classList.toggle('rotate-180'); }
+        function toggleScriptLanguage(lang) { ['deva', 'telu'].forEach(l => { document.getElementById(`text-${l}`).classList.add('hidden'); document.getElementById(`lang-${l}`).className = "flex-1 py-2 text-gray-400"; }); document.getElementById(`text-${lang}`).classList.remove('hidden'); document.getElementById(`lang-${lang}`).className = "flex-1 py-2 font-bold bg-gold text-deepBlack"; }
+        function adjustTextScaling(dir) { state.textSizePx = Math.max(12, Math.min(32, state.textSizePx + dir*2)); document.getElementById('scripture-view-box').style.fontSize = state.textSizePx + "px"; }
+        function incrementBeadCycle() { state.beadCount++; if(state.beadCount > 108){ state.beadCount = 1; state.malaLoops++; localStorage.setItem('sad_loops', state.malaLoops); } localStorage.setItem('sad_beads', state.beadCount); renderBeadMetrics(); }
+        function renderBeadMetrics() { document.getElementById('japa-ticker-val').innerText = state.beadCount; document.getElementById('mala-loop-counter').innerText = state.malaLoops; document.getElementById('japa-visual-progress').style.width = ((state.beadCount / 108) * 100) + "%"; }
+        function resetBeadSystem() { if(confirm("Reset?")){ state.beadCount = 0; state.malaLoops = 0; localStorage.setItem('sad_beads', 0); localStorage.setItem('sad_loops', 0); renderBeadMetrics(); } }
+        const aud = document.getElementById('native-audio');
+        function toggleAudio() { const btn = document.getElementById('audio-btn'); if (aud.paused) { aud.play(); btn.innerHTML = `<i class="fa-solid fa-pause text-sm"></i>`; aud.addEventListener('timeupdate', () => document.getElementById('audio-time-elapsed').innerText = `${Math.floor(aud.currentTime/60).toString().padStart(2,'0')}:${Math.floor(aud.currentTime%60).toString().padStart(2,'0')}`); } else { aud.pause(); btn.innerHTML = `<i class="fa-solid fa-play ml-0.5 text-sm"></i>`; } }
+        fetchGeographicParameters(); renderBeadMetrics();
+    </script>
+</body>
+</html>
